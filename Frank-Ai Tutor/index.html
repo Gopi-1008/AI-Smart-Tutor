@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Memory Palace</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link rel="shortcut icon" href="img/svg_418518.svg" type="image/x-icon">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    :root {
+        /* Dark theme (default) */
+        --primary-color: #6336EC;
+        --secondary-color: #3dd6d0;
+        --accent-gradient-1: #7041e0;
+        --accent-gradient-2: #3dd6d0;
+        --text-color: #ffffff;
+        --muted-text: #8b95a8;
+        --background-color: #0a0b18;
+        --card-bg: #0f1022;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --success: #4CAF50;
+        --warning: #FFC107;
+        --danger: #F44336;
+        --grid-line-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Light theme variables */
+    .light-theme {
+        --primary-color: #6336EC;
+        --secondary-color: #3087ff;
+        --accent-gradient-1: #7041e0;
+        --accent-gradient-2: #3087ff;
+        --text-color: #121212;
+        --muted-text: #556272;
+        --background-color: #f7f8fb;
+        --card-bg: #ffffff;
+        --border-color: rgba(0, 0, 0, 0.08);
+        --grid-line-color: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Inter', sans-serif;
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Header */
+    .header {
+  padding: 30px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.header.scrolled {
+  padding: 20px 0;
+  background: rgba(10, 11, 24, 0.95);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.light-theme .header {
+  background: rgba(247, 248, 251, 0.85);
+}
+
+.light-theme .header.scrolled {
+  background: rgba(247, 248, 251, 0.95);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.logo img {
+  height: 40px;
+  margin-right: 10px;
+  animation: pulse-logo 3s infinite alternate ease-in-out;
+}
+
+@keyframes pulse-logo {
+  0% { 
+    transform: scale(1);
+    /* filter: drop-shadow(0 0 8px rgba(61, 214, 208, 0.5)); */
+  }
+  100% { 
+    transform: scale(1.15); 
+    /* filter: drop-shadow(0 0 12px rgba(126, 75, 252, 0.6)); */
+  }
+}
+
+/* Modern nav menu with hover effects */
+.nav-menu {
+  display: flex;
+  gap: 40px;
+  margin: 0 20px;
+}
+
+.nav-menu a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  position: relative;
+  padding: 8px 0;
+  transition: all 0.3s;
+}
+
+.nav-menu a::before {
+  content: '';
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+  transition: width 0.3s ease;
+  border-radius: 10px;
+}
+
+.nav-menu a:hover {
+  transform: translateY(-2px);
+}
+
+.nav-menu a:hover::before {
+  width: 100%;
+}
+
+/* Active nav item */
+.nav-menu a.active::before {
+  width: 100%;
+}
+
+/* Right side elements container */
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Enhanced auth buttons */
+.auth-buttons {
+  display: flex;
+  gap: 18px;
+}
+
+.login-button {
+  background-color: transparent;
+  border: 1px solid var(--secondary-color);
+  color: var(--secondary-color);
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.login-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(61, 214, 208, 0.2), transparent);
+  transition: left 0.5s ease;
+  z-index: -1;
+}
+
+.login-button:hover::before {
+  left: 100%;
+}
+
+.signup-button {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border: none;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(126, 75, 252, 0.2);
+}
+
+.signup-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.signup-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(126, 75, 252, 0.4);
+}
+
+.signup-button:hover::before {
+  opacity: 1;
+}
+
+.signup-button span {
+  position: relative;
+  z-index: 2;
+}
+
+/* Hamburger menu for mobile */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 24px;
+  cursor: pointer;
+  z-index: 20;
+}
+
+.hamburger div {
+  height: 3px;
+  background-color: var(--text-color);
+  transition: all 0.3s;
+}
+
+/* Hero Section */
+    .hero {
+        padding: 100px 0;
+        position: relative;
+        text-align: center;
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+   
+
+    /* Animation for the glow effects */
+    @keyframes floatGlow {
+        0% {
+            transform: rotate(-12deg) translate(0, 0);
+            opacity: 0.5;
+        }
+        100% {
+            transform: rotate(-8deg) translate(2%, 2%);
+            opacity: 0.7;
+        }
+    }
+
+    @keyframes floatGlow2 {
+        0% {
+            transform: rotate(15deg) translate(0, 0);
+            opacity: 0.6;
+        }
+        100% {
+            transform: rotate(12deg) translate(-2%, -2%);
+            opacity: 0.8;
+        }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .hero-subtitle {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+        margin-bottom: 20px;
+    }
+
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 30px;
+    }
+
+    .hero-title span {
+        background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .hero-description {
+        font-size: 1.2rem;
+        color: var(--muted-text);
+        margin-bottom: 40px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    /* Robot Image */
+    .robot-peek {
+        position: absolute;
+        right: -80px; /* Adjusted from -150px to show more of the robot */
+        bottom: 0;
+        height: 100%;
+        display: flex;
+        align-items: flex-end; /* Align to bottom */
+        z-index: 5;
+        animation: robotPeek 1.5  s ease-out forwards;
+        pointer-events: none;
+    }
+
+    .robot-image {
+        height: 90%; /* Increased from 80% */
+        max-height: 600px; /* Increased from 500px */
+        transform: translateX(20%); /* Reduced from 30% to show more */
+    
+        transition: transform 0.3s ease-out, rotate 0.3s ease-out;
+        transform-origin: center bottom;
+    }
+
+    /* Add a hover effect directly on the robot */
+.robot-peek:hover .robot-image {
+  transform: translateX(40%) rotate(-5deg);
+}
+
+    @keyframes robotPeek {
+        0% {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        100% {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes robotPeek {
+        0% {
+            transform: translateX(100%);
+        }
+        100% {
+            transform: translateX(0);
+        }
+    }
+
+    /* Media query for responsive design */
+    @media (max-width: 992px) {
+      .robot-peek {
+        right: -80px;
+        height: 80%;
+      }
+      
+      .robot-image {
+        height: 60%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .robot-peek {
+        display: none; /* Hide on mobile to save space */
+      }
+      
+      .robot-image {
+        width: 150px;
+      }
+      
+      .hero {
+        text-align: center;
+      }
+    }
+
+    /* Grid pattern background */
+  .grid-bg {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(var(--grid-line-color) 2px, transparent 2px),
+                    linear-gradient(90deg, var(--grid-line-color) 2px, transparent 2px);
+  background-size: 80px 80px;
+  z-index: -10; 
+  opacity: 0.25; 
+  pointer-events: none;
+}
+
+
+
+    /* Features Section */
+    .features {
+        padding: 100px 0;
+        position: relative;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 80px;
+        position: relative;
+    }
+
+    .section-subtitle {
+        color: var(--secondary-color);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .section-heading {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .section-heading span {
+        color: var(--secondary-color);
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
+    }
+
+    .feature-card {
+        background-color: var(--card-bg);
+        border-radius: 20px;
+        padding: 40px;
+        border: 1px solid var(--border-color);
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    } */
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        color: var(--secondary-color);
+    }
+
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .feature-description {
+        color: var(--muted-text);
+        font-size: 0.95rem;
+    }
+
+    /* Process Section */
+    .process {
+        padding: 100px 0;
+        position: relative;
+    }
+
+    .process-steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        position: relative;
+    }
+
+    .process-step {
+        background-color: var(--card-bg);
+        border-radius: 20px;
+        padding: 40px;
+        border: 1px solid var(--border-color);
+        position: relative;
+    }
+
+    .step-number {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 20%; /* Changed from 50% to 20% */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    .step-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: var(--secondary-color);
+    }
+
+    .step-description {
+        color: var(--muted-text);
+        font-size: 0.95rem;
+    }
+
+    /* Testimonials Section */
+    .testimonials {
+        padding: 100px 0;
+        position: relative;
+    }
+
+    .testimonials-container {
+        position: relative;
+    }
+
+    .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+    }
+
+    .testimonial-card {
+        background-color: var(--card-bg);
+        border-radius: 20px;
+        padding: 40px;
+        border: 1px solid var(--border-color);
+    }
+
+    .testimonial-text {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        line-height: 1.8;
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+    }
+
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 20%; /* Changed from 50% to 20% */
+        background-color: var(--primary-color);
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .author-info h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .author-info p {
+        color: var(--muted-text);
+        font-size: 0.85rem;
+    }
+
+    /* Clients Section */
+    .clients {
+        padding: 80px 0;
+        text-align: center;
+    }
+
+    .client-logos {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 40px;
+    }
+
+    .client-logo {
+        opacity: 0.7;
+        transition: opacity 0.3s;
+        height: 30px;
+    }
+
+    .client-logo:hover {
+        opacity: 1;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        padding: 100px 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(61, 214, 208, 0.2), transparent 70%);
+        z-index: 0;
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .cta-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 30px;
+    }
+
+    .cta-description {
+        font-size: 1.2rem;
+        color: var(--muted-text);
+        margin-bottom: 40px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Footer */
+    .footer {
+        padding: 80px 0 40px;
+        position: relative;
+        border-top: 1.5px solid var(--border-color);
+        /* background-color: var(--background-color); */
+    }
+
+    .footer-content {
+        display: grid;
+        grid-template-columns: 2fr repeat(3, 1fr);
+        gap: 40px;
+        margin-bottom: 60px;
+    }
+
+    .footer-logo {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--text-color);
+    }
+
+    .footer-logo img {
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .footer-description {
+        color: var(--muted-text);
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+        max-width: 300px;
+    }
+
+    .footer-social {
+        display: flex;
+        gap: 15px;
+    }
+
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 20%; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-color);
+        font-size: 1rem;
+        transition: background-color 0.3s;
+    }
+
+    .social-icon:hover {
+        background-color: var(--primary-color);
+    }
+
+    .footer-column h3 {
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
+
+    .footer-links {
+        list-style: none;
+    }
+
+    .footer-links li {
+        margin-bottom: 15px;
+    }
+
+    .footer-links a {
+        color: var(--muted-text);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+        color: var(--secondary-color);
+    }
+
+    .footer-bottom {
+        text-align: center;
+        padding-top: 40px;
+        border-top: 2px solid var(--border-color);
+        color: var(--muted-text);
+        font-size: 0.85rem;
+    }
+
+    /* Media Queries */
+    
+    @media (max-width: 992px) {
+        .features-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .process-steps {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .testimonial-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .footer-content {
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .client-logos {
+            gap: 20px;
+        }
+
+        .nav-menu {
+            display: none;
+        }
+    }
+    @keyframes pulseSpotlight {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.1) rotate(10deg);
+    opacity: 0.9;
+  }
+}
+.animate-spotlight {
+  animation: pulseSpotlight 10s ease-in-out infinite alternate;
+}
+
+.feature-card {
+  position: relative;
+  overflow: hidden;
+}
+
+
+.glow-dot {
+  position: absolute;
+  background: var(--secondary-color);
+  box-shadow: 0 0 15px 5px var(--secondary-color);
+  z-index: 5;
+}
+
+@keyframes moveAround {
+  /* Top edge (left to right) */
+  0%, 100% {
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    /* Consistent horizontal box shadow */
+    box-shadow: 0 0 150px 20px var(--secondary-color);
+    transform-origin: left center;
+    border-radius: 0;
+  }
+  
+  23% {
+    top: 0;
+    left: calc(100% - 50px);
+    width: 50px;
+    height: 3px;
+    /* Consistent horizontal box shadow */
+    box-shadow: 0 0 150px 20px var(--secondary-color);
+    transform-origin: right center;
+    border-radius: 0;
+  }
+  
+  /* Top-right corner transition */
+  24% {
+    top: 0;
+    left: calc(100% - 3px);
+    width: 3px;
+    height: 3px;
+    /* Radial box shadow for corner */
+    box-shadow: 0 0 150px 20px var(--secondary-color);
+    border-radius: 0;
+  }
+  
+  /* Right edge (top to bottom) */
+  25% {
+    top: 0;
+    left: calc(100% - 3px);
+    width: 3px;
+    height: 50px;
+    /* Consistent vertical box shadow */
+    box-shadow: 15px 0 150px 20px var(--secondary-color);
+    transform-origin: center top;
+    border-radius: 0;
+  }
+  
+  48% {
+    top: calc(100% - 50px);
+    left: calc(100% - 3px);
+    width: 3px;
+    height: 50px;
+    /* Consistent vertical box shadow */
+    box-shadow: 15px 0 150px 20px var(--secondary-color);
+    transform-origin: center bottom;
+    border-radius: 0;
+  }
+  
+  /* Bottom-right corner transition */
+  49% {
+    top: calc(100% - 3px);
+    left: calc(100% - 3px);
+    width: 3px;
+    height: 3px;
+    border-radius: 0;
+  }
+  
+  /* Bottom edge animation (right to left) */
+  50% {
+    top: calc(100% - 3px);
+    left: calc(100% - 50px);
+    width: 50px;
+    height: 3px;
+    transform-origin: right center;
+    border-radius: 0;
+  }
+  
+  73% {
+    top: calc(100% - 3px);
+    left: 0;
+    width: 50px;
+    height: 3px;
+    transform-origin: left center;
+    border-radius: 0;
+  }
+  
+  /* Bottom-left corner transition */
+  74% {
+    top: calc(100% - 3px);
+    left: 0;
+    width: 3px;
+    height: 3px;
+    border-radius: 0;
+  }
+  
+  /* Left edge animation (bottom to top) */
+  75% {
+    top: calc(100% - 50px);
+    left: 0;
+    width: 3px;
+    height: 50px;
+    transform-origin: center bottom;
+    border-radius: 0;
+    box-shadow: 0 15px 150px 20px var(--secondary-color);
+  }
+  
+  98% {
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 50px;
+    transform-origin: center top;
+    border-radius: 0;
+  }
+  
+  /* Top-left corner transition to complete the loop */
+  99% {
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    border-radius: 0;
+    box-shadow: 0 15px 150px 20px var(--secondary-color);
+  }
+  
+  /* Return to initial state to create perfect loop */
+  100% {
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    box-shadow: 0 15px 150px 20px var(--secondary-color);
+    transform-origin: left center;
+    border-radius: 0;
+  }
+}
+
+/* Apply to all feature cards */
+.features-grid .feature-card .glow-dot {
+  animation: moveAround 15s linear infinite;
+}
+
+/* Add a unique animation delay to each card */
+.features-grid .feature-card:nth-child(1) .glow-dot {
+  animation-delay: 0s;
+}
+
+.features-grid .feature-card:nth-child(2) .glow-dot {
+  animation-delay: -4.17s;
+}
+
+.features-grid .feature-card:nth-child(3) .glow-dot {
+  animation-delay: -7.33s;
+}
+
+.features-grid .feature-card:nth-child(4) .glow-dot {
+  animation-delay: -5.5s;
+}
+
+.features-grid .feature-card:nth-child(5) .glow-dot {
+  animation-delay: -7.67s;
+}
+
+.features-grid .feature-card:nth-child(6) .glow-dot {
+  animation-delay: -2.83s;
+}
+
+/* Horizontal scrolling comments section */
+.scrolling-comments-section {
+  padding: 80px 0;
+  background-color: rgba(15, 16, 34, 0.7);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.comments-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Create fade effect masks on both sides */
+.comments-container::before,
+.comments-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 15%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Left side fade mask */
+.comments-container::before {
+  left: 0;
+  background: linear-gradient(to right, 
+    var(--background-color) 0%, 
+    rgba(10, 11, 24, 0.9) 30%,
+    rgba(10, 11, 24, 0) 100%
+  );
+}
+
+/* Right side fade mask */
+.comments-container::after {
+  right: 0;
+  background: linear-gradient(to left, 
+    var(--background-color) 0%, 
+    rgba(10, 11, 24, 0.9) 30%,
+    rgba(10, 11, 24, 0) 100%
+  );
+}
+
+.comments-track {
+  display: flex;
+  animation: scrollComments 40s linear infinite;
+  width: max-content;
+  padding: 20px 0;
+}
+
+/* Fix the animation to make it smoother */
+@keyframes scrollComments {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Pause on hover */
+.comments-container:hover .comments-track {
+  animation-play-state: paused;
+}
+
+.comment-card {
+  min-width: 350px; /* Increased from 300px */
+  margin-right: 40px; /* Increased from 30px */
+  padding: 30px; /* Increased from 25px */
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.comment-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(126, 75, 252, 0.15);
+  border-color: var(--primary-color);
+}
+
+.comment-text {
+  color: var(--text-color);
+  font-size: 1.1rem; /* Increased from 0.95rem */
+  line-height: 1.6;
+  margin-bottom: 25px; /* Increased from 20px */
+  font-style: italic;
+}
+
+.comment-author {
+  display: flex;
+  align-items: center;
+}
+
+.comment-avatar {
+  width: 50px; /* Increased from 40px */
+  height: 50px; /* Increased from 40px */
+  border-radius: 20%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1.2rem; /* Added to increase letter size */
+  margin-right: 15px; /* Increased from 12px */
+}
+
+.comment-name {
+  font-weight: 600;
+  font-size: 1rem; /* Increased from 0.9rem */
+}
+
+.comment-role {
+  color: var(--muted-text);
+  font-size: 0.85rem; /* Increased from 0.8rem */
+}
+
+/* Update for light theme compatibility */
+.light-theme .comments-container::before {
+  background: linear-gradient(to right, 
+    var(--background-color) 0%, 
+    rgba(247, 248, 251, 0.9) 30%,
+    rgba(247, 248, 251, 0) 100%
+  );
+}
+
+.light-theme .comments-container::after {
+  background: linear-gradient(to left, 
+    var(--background-color) 0%, 
+    rgba(247, 248, 251, 0.9) 30%,
+    rgba(247, 248, 251, 0) 100%
+  );
+}
+
+/* Theme switch styling - Add this to your style section */
+.theme-switch-container {
+    margin-left: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.theme-switch {
+    width: 60px;
+    height: 30px;
+    background-color: var(--card-bg);
+    border-radius: 30px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.theme-switch .fa-sun {
+    color: #FFC107;
+    font-size: 14px;
+}
+
+.theme-switch .fa-moon {
+    color: #8b95a8;
+    font-size: 14px;
+}
+
+.theme-switch-ball {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    left: 4px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.light-theme .theme-switch-ball {
+    transform: translateX(30px);
+    background-color: var(--secondary-color);
+}
+
+/* Add this for smoother transition */
+html {
+  transition: background-color 0.3s, color 0.3s;
+  scroll-behavior: smooth;
+}
+
+/* Add the missing CTA button styles */
+.cta-button {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 10%;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 1rem;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.cta-button-filled {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    box-shadow: 0 5px 15px rgba(99, 54, 236, 0.4);
+}
+
+.cta-button-filled:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(99, 54, 236, 0.6);
+}
+
+.cta-button:not(.cta-button-filled) {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.cta-button:not(.cta-button-filled):hover {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+    transform: translateY(-3px);
+}
+
+/* Add subtle shine effect */
+.cta-button-filled::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    z-index: -1;
+    transition: left 0.6s ease;
+}
+
+.cta-button-filled:hover::before {
+    left: 100%;
+}
+
+/* Light theme adjustments */
+.light-theme .cta-button:not(.cta-button-filled) {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+</style>
+</head>
+<body>
+ <!-- 🔮 SPOTLIGHT GLOWS INSIDE HERO -->
+  <div class="absolute inset-0 z-0 pointer-events-none">
+    <svg class="animate-spotlight absolute w-[138%] -top-40 -left-10 opacity-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3787 2842" fill="none">
+      <g filter="url(#filter1)">
+        <ellipse cx="1924.71" cy="273.501" rx="1924.71" ry="273.501"
+          transform="matrix(-0.822377 -0.568943 -0.568943 0.822377 3531.88 2291.09)"
+          fill="white" fill-opacity="0.31" />
+      </g>
+      <defs>
+        <filter id="filter1" x="0.860352" y="0.838989" width="3785.16" height="2840.26"
+          filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feGaussianBlur stdDeviation="151" result="blur" />
+        </filter>
+      </defs>
+    </svg>
+
+    <svg class="animate-spotlight absolute w-[50vw] h-[80vh] top-10 left-full opacity-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3787 2842" fill="none">
+      <g filter="url(#filter2)">
+        <ellipse cx="1924.71" cy="273.501" rx="1924.71" ry="273.501"
+          transform="matrix(-0.822377 -0.568943 -0.568943 0.822377 3631.88 2291.09)"
+          fill="purple" fill-opacity="0.21" />
+      </g>
+      <defs>
+        <filter id="filter2" x="0.860352" y="0.838989" width="3785.16" height="2840.26"
+          filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feGaussianBlur stdDeviation="151" result="blur" />
+        </filter>
+      </defs>
+    </svg>
+
+    <svg class="animate-spotlight absolute w-[50vw] h-[80vh] top-28 left-80 opacity-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3787 2842" fill="none">
+      <g filter="url(#filter3)">
+        <ellipse cx="1924.71" cy="273.501" rx="1924.71" ry="273.501"
+          transform="matrix(-0.822377 -0.568943 -0.568943 0.822377 3631.88 2291.09)"
+          fill="blue" fill-opacity="0.21" />
+      </g>
+      <defs>
+        <filter id="filter3" x="0.860352" y="0.838989" width="3785.16" height="2840.26"
+          filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feGaussianBlur stdDeviation="151" result="blur" />
+        </filter>
+      </defs>
+    </svg>
+  </div>
+
+    <div class="grid-bg"></div>
+    
+    <!-- Header -->
+    <header class="header">
+    <div class="container">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <img src="img/cute-robot.png" alt="AI Memory Palace Logo">
+                AI Memory Palace
+            </a>
+            
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="#features">Features</a>
+                <a href="#process">Our Approach</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="#contact">Contact</a>
+            </div>
+            
+              <div class="theme-switch-container">
+                    <button class="theme-switch" id="theme-toggle" title="Toggle dark/light theme">
+                        <i class="fas fa-sun"></i>
+                        <i class="fas fa-moon"></i>
+                        <span class="theme-switch-ball"></span>
+                    </button>
+                </div>
+
+            <div class="nav-controls">
+                <div class="auth-buttons">
+                    <a href="signup.html?mode=signin" class="login-button">Log In</a>
+                    <a href="signup.html?mode=signup" class="signup-button"><span>Sign Up</span></a>
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+  
+    <!-- Hero Section -->
+<section class="hero relative overflow-hidden z-0">
+  <!-- 👇 Your actual content stays the same 👇 -->
+  <div class="container relative z-10">
+    <div class="hero-content">
+      <p class="hero-subtitle">Revolutionizing Learning</p>
+      <h1 class="hero-title">Transforming Concepts into <span id="typed-text"></span></h1>
+      <p class="hero-description">
+        Experience a powerful AI platform that combines knowledge retention techniques with interactive learning, creating a personalized memory palace for accelerated mastery of any subject.
+      </p>
+      <div class="hero-buttons">
+        <a href="teat.html" class="cta-button cta-button-filled">Get Started</a>
+        <a href="#features" class="cta-button">Learn More</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Add the robot peeking from the right side -->
+  <div class="robot-peek">
+    <img src="img/robot.png" alt="AI Assistant Robot" class="robot-image">
+  </div>
+</section>
+
+    
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <p class="section-subtitle">Why Choose Us</p>
+                <h2 class="section-heading">Powerful <span>Features</span></h2>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">AI-Powered Learning</h3>
+                    <p class="feature-description">
+                        Our advanced algorithms analyze your learning patterns and create personalized memory techniques tailored specifically to your cognitive style.
+                    </p>
+                    <div class="glow-dot"></div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Adaptive Recall</h3>
+                    <p class="feature-description">
+                        The system continuously adapts to your progress, focusing more on challenging concepts while reinforcing your existing knowledge.
+                    </p>
+                    <div class="glow-dot"></div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Progress Analytics</h3>
+                    <p class="feature-description">
+                        Track your learning journey with detailed analytics and insights, helping you understand your strengths and areas for improvement.
+                    </p>
+                    <div class="glow-dot"></div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3 class="feature-title">Visual Learning</h3>
+                    <p class="feature-description">
+                        Convert complex concepts into memorable visual representations that leverage your brain's natural ability to remember images.
+                    </p>
+                    <div class="glow-dot"></div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Community Learning</h3>
+                    <p class="feature-description">
+                        Connect with peers studying similar subjects and share memory techniques that have proven successful.
+                    </p>
+                    <div class="glow-dot"></div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Cross-Platform Access</h3>
+                    <p class="feature-description">
+                        Access your memory palace anywhere, anytime. Seamless synchronization across all your devices ensures learning continuity.
+                    </p>
+                    <div class="glow-dot"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Process Section -->
+    <section class="process" id="process">
+        <div class="container">
+            <div class="section-title">
+                <p class="section-subtitle">Our Approach</p>
+                <h2 class="section-heading">How It <span>Works</span></h2>
+            </div>
+            
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Planning & Strategy</h3>
+                    <p class="step-description">
+                        We analyze your learning objectives and cognitive preferences to create a personalized memory palace framework tailored to your unique needs.
+                    </p>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Implementation & Learning</h3>
+                    <p class="step-description">
+                        Engage with interactive content designed to encode knowledge in multiple memory systems, ensuring deeper and more permanent retention.
+                    </p>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Reinforcement & Mastery</h3>
+                    <p class="step-description">
+                        Our spaced repetition system and adaptive algorithms ensure optimal review timing, transforming short-term memory into lasting knowledge.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+    <div class="section-title">
+        <p class="section-subtitle">Success Stories</p>
+        <h2 class="section-heading">What Our <span>Users Say</span></h2>
+    </div>
+    
+    <!-- Horizontal scrolling comments section -->
+    <div class="comments-container">
+        <div class="comments-track">
+            <!-- Duplicate these cards to ensure smooth infinite scrolling -->
+            <div class="comment-card">
+                <p class="comment-text">
+                    "AI Memory Palace has changed the way I learn. The AI-driven insights are spot on!"
+                </p>
+                <div class="comment-author">
+                    <div class="comment-avatar">A</div>
+                    <div class="comment-name">Alice Brown</div>
+                    <div class="comment-role">Student</div>
+                </div>
+            </div>
+            
+            <div class="comment-card">
+              <p class="comment-text">
+                "The visual memory techniques are a game changer. I can finally remember complex information with ease."
+              </p>
+              <div class="comment-author">
+                <div class="comment-avatar">B</div>
+                <div class="comment-name">Bob Smith</div>
+                <div class="comment-role">Engineer</div>
+              </div>
+            </div>
+            
+            <div class="comment-card">
+              <p class="comment-text">
+                "As a lifelong learner, I appreciate how this platform adapts to my needs. Highly recommended!"
+              </p>
+              
+              <div class="comment-author">
+                <div class="comment-avatar">C</div>
+                <div class="comment-name">Charlie Johnson</div>
+                <div class="comment-role">Designer</div>
+              </div>
+            </div>
+            
+            <div class="comment-card">
+              <p class="comment-text">
+                "AI Memory Palace is not just an app, it's a revolution in learning. I'm amazed by the results."
+              </p>
+              <div class="comment-author">
+                <div class="comment-avatar">D</div>
+                <div class="comment-name">Diana Prince</div>
+                <div class="comment-role">Doctor</div>
+              </div>
+            </div>
+            
+            <div class="comment-card">
+              <p class="comment-text">
+                "The community aspect is fantastic. Sharing techniques with peers has enhanced my learning experience."
+              </p>
+              <div class="comment-author">
+                <div class="comment-avatar">E</div>
+                <div class="comment-name">Ethan Hunt</div>
+                <div class="comment-role">Agent</div>
+              </div>
+            </div>
+            
+            <div class="comment-card">
+              <p class="comment-text">
+                "I love how I can access my memory palace on any device. It's learning without boundaries."
+              </p>
+              <div class="comment-author">
+                <div class="comment-avatar">F</div>
+                <div class="comment-name">Fiona Glenanne</div>
+                <div class="comment-role">Manager</div>
+              </div>
+            </div>
+            
+            <!-- Duplicate cards again at the end for seamless looping -->
+        </div>
+    </div>
+</section>
+    
+    
+    <!-- CTA Section -->
+    <section class="cta-section" id="contact">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to Transform Your Learning?</h2>
+                <p class="cta-description">
+                    Join thousands of users who have already accelerated their learning journey using AI Memory Palace.
+                </p>
+                <a href="teat.html" class="cta-button cta-button-filled">Get Started Now</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <img src="img/cute-robot.png" alt="AI Memory Palace Logo">
+                        AI Memory Palace
+                    </div>
+                    <p class="footer-description">
+                        Revolutionizing learning through AI-powered memory techniques and personalized education.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Features</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">AI Learning</a></li>
+                        <li><a href="#">Visual Memory</a></li>
+                        <li><a href="#">Progress Tracking</a></li>
+                        <li><a href="#">Spaced Repetition</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 AI Memory Palace. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    
+<script>
+     var typed = new Typed('#typed-text', {
+    strings: [
+      "Seamless Memories",
+      "Powerful Connections",
+      "Lifelong Knowledge",
+      "Unforgettable Experiences"
+    ],
+    typeSpeed: 50,
+    backSpeed: 30,
+    backDelay: 2000,
+    startDelay: 500,
+    loop: true
+  });
+</script> 
+<script>
+  // Add this to your existing script section
+  document.addEventListener('DOMContentLoaded', () => {
+    const robot = document.querySelector('.robot-image');
+    const robotContainer = document.querySelector('.robot-peek');
+    
+    // Robot reacts to mouse movement
+    document.addEventListener('mousemove', (e) => {
+      const mouseX = e.clientX;
+      const windowWidth = window.innerWidth;
+      
+      // Calculate how far right the mouse is (as a percentage)
+      const mouseRightness = mouseX / windowWidth;
+      
+      // Move the robot backwards more as the mouse moves right
+      if (mouseRightness > 0.6) { // Only react when mouse is in right 40% of screen
+        const moveAmount = (mouseRightness - 0.6) * 100; // Scale the movement
+        robot.style.transform = `translateX(${20 + moveAmount}%)`; // Base position + extra movement
+      } else {
+        robot.style.transform = 'translateX(20%)'; // Return to original position
+      }
+    });
+    
+    // Robot also reacts to scrolling
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const heroHeight = document.querySelector('.hero').offsetHeight;
+      
+      // Move robot back as user scrolls down through hero section
+      if (scrollY < heroHeight) {
+        const scrollProgress = scrollY / heroHeight;
+        const moveAmount = scrollProgress * 50; // Up to 50% more to the right
+        robot.style.transform = `translateX(${20 + moveAmount}%)`;
+        
+        // Add a slight rotation too
+        robot.style.rotate = `${-scrollProgress * 5}deg`;
+      }
+    });
+  });
+</script>
+<script>
+  // Replace the theme toggle script with this improved version
+  document.addEventListener('DOMContentLoaded', () => {
+    // Theme switch functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    // Check if theme toggle exists before adding listeners
+    if (!themeToggle) {
+      console.error('Theme toggle button not found');
+      return;
+    }
+    
+    const body = document.body;
+    
+    // Debug log
+    console.log('Theme toggle initialized');
+    
+    // Check if user has previously set a theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      body.classList.add('light-theme');
+      updateGlowColors('light');
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      console.log('Theme toggle clicked');
+      
+      // Toggle theme class
+      body.classList.toggle('light-theme');
+      
+      // Save preference to localStorage
+      const currentTheme = body.classList.contains('light-theme') ? 'light' : 'dark';
+      localStorage.setItem('theme', currentTheme);
+      
+      // Update glow colors based on theme
+      updateGlowColors(currentTheme);
+    });
+    
+    // Function to update glow colors based on theme
+    function updateGlowColors(theme) {
+      console.log('Updating colors to theme:', theme);
+      const svgs = document.querySelectorAll('.animate-spotlight');
+      
+      if (theme === 'light') {
+        // Lighter, more subtle glows for light theme
+        svgs.forEach((svg, index) => {
+          const ellipse = svg.querySelector('ellipse');
+          if (ellipse) {
+            if (index === 0) ellipse.setAttribute('fill', '#f0f0f0');
+            if (index === 1) ellipse.setAttribute('fill', 'rgba(99, 54, 236, 0.10)');
+            if (index === 2) ellipse.setAttribute('fill', 'rgba(48, 135, 255, 0.12)');
+          }
+        });
+      } else {
+        // Return to original darker theme glows
+        svgs.forEach((svg, index) => {
+          const ellipse = svg.querySelector('ellipse');
+          if (ellipse) {
+            if (index === 0) ellipse.setAttribute('fill', 'white');
+            if (index === 1) ellipse.setAttribute('fill', 'purple');
+            if (index === 2) ellipse.setAttribute('fill', 'blue');
+          }
+        });
+      }
+      
+      // Update opacity for all ellipses
+      document.querySelectorAll('.animate-spotlight ellipse').forEach(ellipse => {
+        if (ellipse) {
+          ellipse.setAttribute('fill-opacity', theme === 'light' ? '0.21' : '0.31');
+        }
+      });
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Navbar scroll effect
+    const header = document.querySelector('.header');
+    const navLinks = document.querySelectorAll('.nav-menu a');
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
+    const navControls = document.querySelector('.nav-controls');
+    
+    // Handle scroll effect
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+    
+    // Handle active nav link
+    navLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        navLinks.forEach(item => item.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Close mobile menu on link click
+        if (window.innerWidth <= 768) {
+          navMenu.classList.remove('active');
+          navControls.classList.remove('active');
+          hamburger.classList.remove('active');
+        }
+      });
+    });
+    
+    // Mobile menu toggle
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navMenu.classList.toggle('active');
+      navControls.classList.toggle('active');
+    });
+    
+    // Set active link based on scroll position
+    function setActiveLink() {
+      const sections = document.querySelectorAll('section');
+      const scrollPosition = window.scrollY + 100;
+      
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        const sectionId = section.getAttribute('id');
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+          navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${sectionId}`) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }
+    
+    window.addEventListener('scroll', setActiveLink);
+  });
+</script>
+</body>
+</html>
